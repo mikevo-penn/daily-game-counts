@@ -78,6 +78,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
   end
 
+  @spec transform_count_to_string(integer) :: binary
   def transform_count_to_string(number) do
     number
     |> Integer.to_string
