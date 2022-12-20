@@ -17,11 +17,6 @@ defmodule Mix.Tasks.DailyGameCount do
     HTTPoison.start
      params = build_game_date_parameter()
 
-    # World Cup
-    {:ok, response_worldcup} = HTTPoison.get("https://api.thescore.com/worldcup/events?#{params}")
-    data_worldcup = Poison.decode!(response_worldcup.body)
-    count_worldcup = Enum.count(data_worldcup)
-
     # NBA
     {:ok, response_nba} = HTTPoison.get("https://api.thescore.com/nba/events?#{params}")
     data_nba = Poison.decode!(response_nba.body)
@@ -52,7 +47,6 @@ defmodule Mix.Tasks.DailyGameCount do
     data_nhl = Poison.decode!(response_nhl.body)
     count_nhl = Enum.count(data_nhl)
 
-    count_worldcup_string = transform_count_to_string(count_worldcup)
     count_nba_string = transform_count_to_string(count_nba)
     count_ncaab_string = transform_count_to_string(count_ncaab)
     count_wcbk_string = transform_count_to_string(count_wcbk)
@@ -60,12 +54,11 @@ defmodule Mix.Tasks.DailyGameCount do
     count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
 
-    count_total_games = count_worldcup + count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
+    count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
     total_games_string = transform_count_to_string(count_total_games)
 
     generate_message(count_total_games)
 
-    IO.puts("[#{count_worldcup_string} ] - World Cup Games :soccer:")
     IO.puts("[#{count_nba_string} ] - NBA Games :basketball:")
     IO.puts("[#{count_ncaab_string} ] - NCAAB Men's Games :basketball:")
     IO.puts("[#{count_wcbk_string} ] - NCAAB Women's Games :basketball:")
