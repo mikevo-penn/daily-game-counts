@@ -47,6 +47,7 @@ defmodule Mix.Tasks.DailyGameCount do
     data_nhl = Poison.decode!(response_nhl.body)
     count_nhl = Enum.count(data_nhl)
 
+    # Stylize the game counts into a string with padding.
     count_nba_string = transform_count_to_string(count_nba)
     count_ncaab_string = transform_count_to_string(count_ncaab)
     count_wcbk_string = transform_count_to_string(count_wcbk)
@@ -54,11 +55,16 @@ defmodule Mix.Tasks.DailyGameCount do
     count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
 
+    # Sum up the games across all the leagues we are checking.
     count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
+
+    # Stylize the game counts across all leagues we are chekcing into a string with padding.
     total_games_string = transform_count_to_string(count_total_games)
 
-    generate_message(count_total_games)
+    # Generate the message heading
+    generate_message_heading(count_total_games)
 
+    # Low tech print out the message body.
     IO.puts("[#{count_nba_string} ] - NBA Games :basketball:")
     IO.puts("[#{count_ncaab_string} ] - NCAAB Men's Games :basketball:")
     IO.puts("[#{count_wcbk_string} ] - NCAAB Women's Games :basketball:")
@@ -90,7 +96,7 @@ defmodule Mix.Tasks.DailyGameCount do
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
   end
 
-  def generate_message(number_of_games) do
+  def generate_message_heading(number_of_games) do
     {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
     day = Calendar.strftime(current_date_time, "%A")
     full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
