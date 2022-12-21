@@ -171,15 +171,19 @@ defmodule Mix.Tasks.DailyGameCount do
     |> Enum.map(fn (game) ->
       {_, dt} = Timex.parse(game, "{RFC1123}")
       dt_est = DateTime.add(dt, 60 * 60 * 5 * -1, :second, Tz.TimeZoneDatabase)
-      dt_est.hour
+      {hour, ampm} = Timex.Time.to_12hour_clock(dt_est.hour)
+      "#{hour} #{ampm}"
+      # dt_est.hour
     end)
   end
 
   def fill_hours_map(game_hours) do
     # Create a base map will all possible hours in a day.
     # Merge the base hours with the hours we have games starting, keeping the hour that is greater than 0.
-    base_hours = %{0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0,
-     13 => 0, 14 => 0, 15 => 0, 16 => 0, 17 => 0, 18 => 0, 19 => 0, 20 => 0, 21 => 0, 22 => 0, 23 => 0}
+    # base_hours = %{0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0,
+    #  13 => 0, 14 => 0, 15 => 0, 16 => 0, 17 => 0, 18 => 0, 19 => 0, 20 => 0, 21 => 0, 22 => 0, 23 => 0}
+    base_hours = %{"12 am" => 0, "1 am" => 0, "2 am" => 0, "3 am" => 0, "4 am" => 0, "5 am" => 0, "6 am" => 0, "7 am" => 0, "8 am" => 0, "9 am" => 0, "10 am" => 0, "11 am" => 0, "12 pm" => 0,
+     "1 pm" => 0, "2 pm" => 0, "3 pm" => 0, "4 pm" => 0, "5 pm" => 0, "6 pm" => 0, "7 pm" => 0, "8 pm" => 0, "9 pm" => 0, "10 pm" => 0, "11 pm" => 0}
     _ = Map.merge(base_hours, game_hours, fn _k, _v1, v2 ->
       cond do
         v2 > 0 -> v2
