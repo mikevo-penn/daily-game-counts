@@ -24,3 +24,6 @@ You can just clone the code and run it locally for now. To do this there are 3 s
 1. Clone the repo. `git clone git@github.com:mikevo-penn/daily-game-counts.git`
 2. Install the dependencies `mix get.deps`
 3. Install `ImageMagick` on your local machine.
+
+## Running the app
+You can invoke the app like this: `mix DailyGameCount`
