@@ -190,14 +190,16 @@ defmodule Mix.Tasks.DailyGameCount do
     ds = Contex.Dataset.new(grap_data, ["hour", "games\nstarting"])
     bar_chart = Contex.BarChart.new(ds)
 
-    plot = Contex.Plot.new(600, 400, bar_chart)
+    plot = Contex.Plot.new(800, 400, bar_chart)
       |> Contex.Plot.plot_options(%{legend_setting: :legend_left})
       |> Contex.Plot.titles("Game Starts by Hour", "")
 
       {_, svg} = Contex.Plot.to_svg(plot)
 
-    {:ok, file} = File.open("./temp-graph.svg", [:write])
+    {:ok, file} = File.open("./priv/temp-graph.svg", [:write])
     Enum.map(svg, fn (d) -> IO.binwrite(file, d) end)
     File.close(file)
+
+    System.cmd("convert", ["svg:./priv/temp-graph.svg", "./priv/temp-graph.jpg"])
   end
 end
