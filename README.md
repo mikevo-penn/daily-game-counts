@@ -37,6 +37,7 @@ You can invoke the app like this: `mix DailyGameCount`
 ## TODO
 - [x] Build basic functionality and message.
 - [x] Invent a method to generate a bar graph from the game start data.
+- [ ] Update bar chart to use AM / PM EST Time.
 - [ ] Refactor code to use a config file to read set of leagues to generate the message for.
 - [ ] Enable a runtime arg to specify days out from today.
 - [ ] Containerize the app so that ImageMagick doesn't need to be installed locally.
