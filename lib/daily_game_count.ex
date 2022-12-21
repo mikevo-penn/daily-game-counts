@@ -1,8 +1,10 @@
 defmodule Mix.Tasks.DailyGameCount do
   alias HTTPoison
   alias Poison
+  alias Contex
 
   use Mix.Task
+  use Timex
 
   # TODO:
   # - Refactor to use a config file.
@@ -17,35 +19,50 @@ defmodule Mix.Tasks.DailyGameCount do
     HTTPoison.start
      params = build_game_date_parameter()
 
+     game_data = []
+
     # NBA
     {:ok, response_nba} = HTTPoison.get("https://api.thescore.com/nba/events?#{params}")
-    data_nba = Poison.decode!(response_nba.body)
+    data_nba = extract_game_data(response_nba.body)
     count_nba = Enum.count(data_nba)
+    game_data = [data_nba | game_data]
 
     # NCAAB Men's
     {:ok, response_ncaab} = HTTPoison.get("https://api.thescore.com/ncaab/events?#{params}")
-    data_ncaab = Poison.decode!(response_ncaab.body)
+    data_ncaab = extract_game_data(response_ncaab.body)
     count_ncaab = Enum.count(data_ncaab)
+    game_data = [data_ncaab | game_data]
 
     # NCAAB Women's
     {:ok, response_wcbk} = HTTPoison.get("https://api.thescore.com/wcbk/events?#{params}")
-    data_wcbk = Poison.decode!(response_wcbk.body)
+    data_wcbk = extract_game_data(response_wcbk.body)
     count_wcbk = Enum.count(data_wcbk)
+    game_data = [data_wcbk | game_data]
 
     # NFL
     {:ok, response_nfl} = HTTPoison.get("https://api.thescore.com/nfl/events?#{params}")
-    data_nfl = Poison.decode!(response_nfl.body)
+    data_nfl = extract_game_data(response_nfl.body)
     count_nfl = Enum.count(data_nfl)
+    game_data = [data_nfl | game_data]
 
     # NCAAF
     {:ok, response_ncaaf} = HTTPoison.get("https://api.thescore.com/ncaaf/events?#{params}")
-    data_ncaaf = Poison.decode!(response_ncaaf.body)
+    data_ncaaf = extract_game_data(response_ncaaf.body)
     count_ncaaf = Enum.count(data_ncaaf)
+    game_data = [data_ncaaf | game_data]
 
     # NCAAF
     {:ok, response_nhl} = HTTPoison.get("https://api.thescore.com/nhl/events?#{params}")
-    data_nhl = Poison.decode!(response_nhl.body)
+    data_nhl = extract_game_data(response_nhl.body)
     count_nhl = Enum.count(data_nhl)
+    _ = [data_nhl | game_data]
+
+    # Normalize game counts by hour.
+    hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
+    graph_data = build_graph_data(hourly_data)
+
+    # Generate graph image.
+    generate_graph_svg(graph_data)
 
     # Stylize the game counts into a string with padding.
     count_nba_string = transform_count_to_string(count_nba)
@@ -118,5 +135,69 @@ defmodule Mix.Tasks.DailyGameCount do
       games > 150 && games < 201 -> "High"
       games > 200 -> "Very High"
     end
+  end
+
+  def extract_game_data(game_data) do
+    Poison.decode!(game_data)
+    |> Enum.map(fn (el) -> el["game_date"] end)
+  end
+
+  def build_graph_data(game_data) do
+    # Go over the game_data list and extract the hours from the game_date field.
+    hours = game_data
+    |> Enum.map(fn (el) ->
+      extract_hour(el)
+    end)
+
+    # Flatten the list of lists into a single lists and dedupe by frequencies.
+    flatten_hours = List.flatten(hours)
+    |> Enum.frequencies_by(& &1)
+
+    # Normalize the hours map so that we represent all 24 hours.
+    normalized_hours = fill_hours_map(flatten_hours)
+
+    # Use comprehension to go through each k, v ito a list of tuples needed by the graphing API.
+    # for {k, v} <- normalized_hours, into: [], do: {"#{k}", "#{v}"}
+
+    # Use a simple map to go through each k, v ito a list of tuples needed by the graphing API.
+    normalized_hours |> Enum.map(fn {k, v} -> {k, v} end)
+  end
+
+  def extract_hour(games) do
+    # Date format going in Wed, 21 Dec 2022 00:00:00 -0000
+    # For each game, parse the date and conver it to EST time which is UTC-5 hours.
+    games
+    |> Enum.map(fn (game) ->
+      {_, dt} = Timex.parse(game, "{RFC1123}")
+      dt_est = DateTime.add(dt, 60 * 60 * 5 * -1, :second, Tz.TimeZoneDatabase)
+      dt_est.hour
+    end)
+  end
+
+  def fill_hours_map(game_hours) do
+    # Create a base map will all possible hours in a day.
+    # Merge the base hours with the hours we have games starting, keeping the hour that is greater than 0.
+    base_hours = %{0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0,
+     13 => 0, 14 => 0, 15 => 0, 16 => 0, 17 => 0, 18 => 0, 19 => 0, 20 => 0, 21 => 0, 22 => 0, 23 => 0}
+    _ = Map.merge(base_hours, game_hours, fn _k, _v1, v2 ->
+      cond do
+        v2 > 0 -> v2
+      end
+    end)
+  end
+
+  def generate_graph_svg(grap_data) do
+    ds = Contex.Dataset.new(grap_data, ["hour", "games\nstarting"])
+    bar_chart = Contex.BarChart.new(ds)
+
+    plot = Contex.Plot.new(600, 400, bar_chart)
+      |> Contex.Plot.plot_options(%{legend_setting: :legend_left})
+      |> Contex.Plot.titles("Game Starts by Hour", "")
+
+      {_, svg} = Contex.Plot.to_svg(plot)
+
+    {:ok, file} = File.open("./temp-graph.svg", [:write])
+    Enum.map(svg, fn (d) -> IO.binwrite(file, d) end)
+    File.close(file)
   end
 end

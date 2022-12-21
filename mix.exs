@@ -14,7 +14,7 @@ defmodule DailyGameCount.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:httpoison, :poison, :tz],
+      applications: [:httpoison, :poison, :tz, :timex, :contex],
       extra_applications: [:logger]
     ]
   end
@@ -24,7 +24,9 @@ defmodule DailyGameCount.MixProject do
     [
       {:httpoison, "~> 1.8"},
       {:poison, "~> 5.0"},
-      {:tz, "~> 0.24.0"}
+      {:tz, "~> 0.24.0"},
+      {:timex, "~> 3.7.9", override: true},
+      {:contex, "~> 0.4.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
