@@ -172,23 +172,25 @@ defmodule Mix.Tasks.DailyGameCount do
       {_, dt} = Timex.parse(game, "{RFC1123}")
       dt_est = DateTime.add(dt, 60 * 60 * 5 * -1, :second, Tz.TimeZoneDatabase)
       {hour, ampm} = Timex.Time.to_12hour_clock(dt_est.hour)
-      "#{hour} #{ampm}"
-      # dt_est.hour
+      # ampm_capitalized = String.upcase("#{ampm}")
+      "#{hour} #{String.upcase("#{ampm}")}"
+
     end)
   end
 
   def fill_hours_map(game_hours) do
     # Create a base map will all possible hours in a day.
     # Merge the base hours with the hours we have games starting, keeping the hour that is greater than 0.
-    # base_hours = %{0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0,
-    #  13 => 0, 14 => 0, 15 => 0, 16 => 0, 17 => 0, 18 => 0, 19 => 0, 20 => 0, 21 => 0, 22 => 0, 23 => 0}
-    base_hours = %{"12 am" => 0, "1 am" => 0, "2 am" => 0, "3 am" => 0, "4 am" => 0, "5 am" => 0, "6 am" => 0, "7 am" => 0, "8 am" => 0, "9 am" => 0, "10 am" => 0, "11 am" => 0, "12 pm" => 0,
-     "1 pm" => 0, "2 pm" => 0, "3 pm" => 0, "4 pm" => 0, "5 pm" => 0, "6 pm" => 0, "7 pm" => 0, "8 pm" => 0, "9 pm" => 0, "10 pm" => 0, "11 pm" => 0}
-    _ = Map.merge(base_hours, game_hours, fn _k, _v1, v2 ->
+    base_hours = %{"12 AM" => 0, "1 AM" => 0, "2 AM" => 0, "3 AM" => 0, "4 AM" => 0, "5 AM" => 0, "6 AM" => 0, "7 AM" => 0, "8 AM" => 0, "9 AM" => 0, "10 AM" => 0, "11 AM" => 0, "12 PM" => 0,
+    "1 PM" => 0, "2 PM" => 0, "3 PM" => 0, "4 PM" => 0, "5 PM" => 0, "6 PM" => 0, "7 PM" => 0, "8 PM" => 0, "9 PM" => 0, "10 PM" => 0, "11 PM" => 0}
+    noramlized_hours = Map.merge(base_hours, game_hours, fn _k, _v1, v2 ->
       cond do
         v2 > 0 -> v2
       end
     end)
+
+    sort_graph_data_by_am_pm_time(noramlized_hours)
+
   end
 
   def generate_graph_svg(grap_data) do
@@ -224,5 +226,20 @@ defmodule Mix.Tasks.DailyGameCount do
     full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
 
     {day, full_day}
+  end
+
+  # Sort the graph data by normal time sequence of 12 am, 1 am, 2 am.. 10 pm, 11 pm. This requires trickery because computers don't understand this sequence.
+  def sort_graph_data_by_am_pm_time(noramlized_hours) do
+    # Sort the game hours by am to pm, then numerically 1 to 12.
+    semi_sorted = Enum.sort_by(noramlized_hours, &{elem(&1, 0) =~ "PM", Integer.parse(hd(String.split(elem(&1, 0), " ")))})
+
+    # get the correct sequence starting at 12 am to 11 am.
+    am_hours = Enum.slice(semi_sorted, 11, 1) ++ Enum.slice(semi_sorted, 0, 11)
+
+    # get the correct sequence starting at 12pm to 11 pm.
+    pm_hours = [List.last(semi_sorted)] ++ Enum.slice(semi_sorted, 12,11)
+
+    # now combine am and pm hours in order.
+    am_hours ++ pm_hours
   end
 end
