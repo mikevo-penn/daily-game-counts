@@ -193,8 +193,16 @@ defmodule Mix.Tasks.DailyGameCount do
     ds = Contex.Dataset.new(grap_data, ["hour", "games\nstarting"])
     bar_chart = Contex.BarChart.new(ds)
 
-    plot = Contex.Plot.new(800, 400, bar_chart)
-      |> Contex.Plot.plot_options(%{legend_setting: :legend_left})
+    options = [
+      data_labels: true,
+      orientation: :vertical,
+      colour_palette: :warm
+    ]
+
+    # plot = Contex.Plot.new(800, 400, bar_chart, options)
+    plot = Contex.Plot.new(ds, Contex.BarChart, 800, 400, options)
+      |> Contex.Plot.plot_options(%{legend_setting: :legend_bottom})
+      |> Contex.Plot.axis_labels("", "")
       |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 24 hour")
 
       {_, svg} = Contex.Plot.to_svg(plot)
