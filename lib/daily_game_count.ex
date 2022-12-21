@@ -114,9 +114,10 @@ defmodule Mix.Tasks.DailyGameCount do
   end
 
   def generate_message_heading(number_of_games) do
-    {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
-    day = Calendar.strftime(current_date_time, "%A")
-    full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
+    {day, full_day} = get_weekday_date_string()
+    # {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
+    # day = Calendar.strftime(current_date_time, "%A")
+    # full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
     volume_of_games = determine_game_volume(number_of_games)
 
     msg = """
@@ -187,12 +188,14 @@ defmodule Mix.Tasks.DailyGameCount do
   end
 
   def generate_graph_svg(grap_data) do
+    {day, full_day} = get_weekday_date_string()
+
     ds = Contex.Dataset.new(grap_data, ["hour", "games\nstarting"])
     bar_chart = Contex.BarChart.new(ds)
 
     plot = Contex.Plot.new(800, 400, bar_chart)
       |> Contex.Plot.plot_options(%{legend_setting: :legend_left})
-      |> Contex.Plot.titles("Game Starts by Hour", "Time is in EST 24 hour")
+      |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 24 hour")
 
       {_, svg} = Contex.Plot.to_svg(plot)
 
@@ -201,5 +204,13 @@ defmodule Mix.Tasks.DailyGameCount do
     File.close(file)
 
     System.cmd("convert", ["svg:./priv/temp-graph.svg", "./priv/temp-graph.jpg"])
+  end
+
+  def get_weekday_date_string() do
+    {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
+    day = Calendar.strftime(current_date_time, "%A")
+    full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
+
+    {day, full_day}
   end
 end
