@@ -24,7 +24,7 @@ daily_game_count-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
-/priv/
+# /priv/
 
 # MAC
 .DS_Store
