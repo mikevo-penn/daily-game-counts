@@ -10,7 +10,8 @@ It then does some simple summation and data parsing to generate the message inte
 ## Sample Message and Bar Graph.
 <img width="713" alt="image" src="https://user-images.githubusercontent.com/107335238/208815041-fd539a8b-1b3c-4cd6-902f-efd2b8306f66.png">
 
-![image](https://user-images.githubusercontent.com/107335238/208814903-67d95a58-ac36-40a8-943c-5f8286d70ad4.png)
+![image](https://user-images.githubusercontent.com/107335238/209185789-e77c915a-da99-42ab-98e6-7d6d75dc0020.png)
+
 
 
 ## How it generate the message?
