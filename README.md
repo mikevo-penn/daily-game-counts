@@ -43,5 +43,6 @@ You can invoke the app like this: `mix DailyGameCount`
 - [ ] Refactor code to use a config file to read set of leagues to generate the message for.
 - [ ] Enable a runtime arg to specify days out from today.
 - [ ] Containerize the app so that ImageMagick doesn't need to be installed locally.
+- [ ] Dynamically change the start and end time of the timeframe sentence based on actual game start times.
 - [ ] ...
 - [ ] Profit!
