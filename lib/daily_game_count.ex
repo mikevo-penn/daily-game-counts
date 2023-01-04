@@ -209,7 +209,7 @@ defmodule Mix.Tasks.DailyGameCount do
     plot = Contex.Plot.new(ds, Contex.BarChart, 800, 400, options)
       |> Contex.Plot.plot_options(%{legend_setting: :legend_bottom})
       |> Contex.Plot.axis_labels("", "")
-      |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 24 hour")
+      |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 12 hour format.")
 
       {_, svg} = Contex.Plot.to_svg(plot)
 
