@@ -40,16 +40,16 @@ defmodule Mix.Tasks.DailyGameCount do
     game_data = [data_wcbk | game_data]
 
     # NFL
-    {:ok, response_nfl} = HTTPoison.get("https://api.thescore.com/nfl/events?#{params}")
-    data_nfl = extract_game_data(response_nfl.body)
-    count_nfl = Enum.count(data_nfl)
-    game_data = [data_nfl | game_data]
+#    {:ok, response_nfl} = HTTPoison.get("https://api.thescore.com/nfl/events?#{params}")
+#    data_nfl = extract_game_data(response_nfl.body)
+#    count_nfl = Enum.count(data_nfl)
+#    game_data = [data_nfl | game_data]
 
     # NCAAF
-    {:ok, response_ncaaf} = HTTPoison.get("https://api.thescore.com/ncaaf/events?#{params}")
-    data_ncaaf = extract_game_data(response_ncaaf.body)
-    count_ncaaf = Enum.count(data_ncaaf)
-    game_data = [data_ncaaf | game_data]
+#    {:ok, response_ncaaf} = HTTPoison.get("https://api.thescore.com/ncaaf/events?#{params}")
+#    data_ncaaf = extract_game_data(response_ncaaf.body)
+#    count_ncaaf = Enum.count(data_ncaaf)
+#    game_data = [data_ncaaf | game_data]
 
     # NCAAF
     {:ok, response_nhl} = HTTPoison.get("https://api.thescore.com/nhl/events?#{params}")
@@ -58,7 +58,8 @@ defmodule Mix.Tasks.DailyGameCount do
     _ = [data_nhl | game_data]
 
     # Normalize game counts by hour.
-    hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
+ #   hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
+    hourly_data = [data_nba, data_ncaab, data_wcbk, data_nhl]
     graph_data = build_graph_data(hourly_data)
 
     # Generate graph image.
@@ -68,12 +69,13 @@ defmodule Mix.Tasks.DailyGameCount do
     count_nba_string = transform_count_to_string(count_nba)
     count_ncaab_string = transform_count_to_string(count_ncaab)
     count_wcbk_string = transform_count_to_string(count_wcbk)
-    count_nfl_string = transform_count_to_string(count_nfl)
-    count_ncaaf_string = transform_count_to_string(count_ncaaf)
+#    count_nfl_string = transform_count_to_string(count_nfl)
+#    count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
 
     # Sum up the games across all the leagues we are checking.
-    count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
+ #   count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
+    count_total_games = count_nba + count_ncaab + count_wcbk + count_nhl    
 
     # Stylize the game counts across all leagues we are chekcing into a string with padding.
     total_games_string = transform_count_to_string(count_total_games)
@@ -85,8 +87,8 @@ defmodule Mix.Tasks.DailyGameCount do
     IO.puts("[#{count_nba_string} ] - NBA Games :basketball:")
     IO.puts("[#{count_ncaab_string} ] - NCAAB Men's Games :basketball:")
     IO.puts("[#{count_wcbk_string} ] - NCAAB Women's Games :basketball:")
-    IO.puts("[#{count_nfl_string} ] - NFL Games :football:")
-    IO.puts("[#{count_ncaaf_string} ] - NCAAF Games :football:")
+#    IO.puts("[#{count_nfl_string} ] - NFL Games :football:")
+#    IO.puts("[#{count_ncaaf_string} ] - NCAAF Games :football:")
     IO.puts("[#{count_nhl_string} ] - NHL Games :ice_hockey_stick_and_puck:")
     IO.puts("========================")
     IO.puts("[#{total_games_string}] - Total Games")
