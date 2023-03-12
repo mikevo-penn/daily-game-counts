@@ -121,6 +121,7 @@ defmodule Mix.Tasks.DailyGameCount do
     from_date = Calendar.strftime(current_date_time, string_format)
     to_date = Calendar.strftime(to_date_time, string_format)
 
+    # "game_date.in=2023-03-13T05:00:00.000Z,2023-03-14T05:00:00.000Z&limit=-1&rpp=-1" DEBUG LINE
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
   end
 
