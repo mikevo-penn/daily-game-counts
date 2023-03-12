@@ -181,7 +181,8 @@ defmodule Mix.Tasks.DailyGameCount do
     games
     |> Enum.map(fn (game) ->
       {_, dt} = Timex.parse(game, "{RFC1123}")
-      dt_est = DateTime.add(dt, 60 * 60 * 5 * -1, :second, Tz.TimeZoneDatabase)
+      # For time add calculation use * 4 durint DST (Day Light Savings). Otherwise use * 5
+      dt_est = DateTime.add(dt, 60 * 60 * 4 * -1, :second, Tz.TimeZoneDatabase)
       {hour, ampm} = Timex.Time.to_12hour_clock(dt_est.hour)
       # ampm_capitalized = String.upcase("#{ampm}")
       "#{hour} #{String.upcase("#{ampm}")}"
