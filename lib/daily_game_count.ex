@@ -51,15 +51,22 @@ defmodule Mix.Tasks.DailyGameCount do
 #    count_ncaaf = Enum.count(data_ncaaf)
 #    game_data = [data_ncaaf | game_data]
 
-    # NCAAF
+    # NHL
     {:ok, response_nhl} = HTTPoison.get("https://api.thescore.com/nhl/events?#{params}")
     data_nhl = extract_game_data(response_nhl.body)
     count_nhl = Enum.count(data_nhl)
     _ = [data_nhl | game_data]
 
+    # MLB
+    {:ok, response_mlb} = HTTPoison.get("https://api.thescore.com/mlb/events?#{params}")
+    data_mlb = extract_game_data(response_mlb.body)
+    count_mlb = Enum.count(data_mlb)
+    _ = [data_mlb | game_data]
+
+
     # Normalize game counts by hour.
  #   hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
-    hourly_data = [data_nba, data_ncaab, data_wcbk, data_nhl]
+    hourly_data = [data_nba, data_ncaab, data_wcbk, data_nhl, data_mlb]
     graph_data = build_graph_data(hourly_data)
 
     # Generate graph image.
@@ -72,10 +79,11 @@ defmodule Mix.Tasks.DailyGameCount do
 #    count_nfl_string = transform_count_to_string(count_nfl)
 #    count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
+    count_mlb_string = transform_count_to_string(count_mlb)
 
     # Sum up the games across all the leagues we are checking.
  #   count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
-    count_total_games = count_nba + count_ncaab + count_wcbk + count_nhl    
+    count_total_games = count_nba + count_ncaab + count_wcbk + count_nhl + count_mlb
 
     # Stylize the game counts across all leagues we are chekcing into a string with padding.
     total_games_string = transform_count_to_string(count_total_games)
@@ -90,6 +98,7 @@ defmodule Mix.Tasks.DailyGameCount do
 #    IO.puts("[#{count_nfl_string} ] - NFL Games :football:")
 #    IO.puts("[#{count_ncaaf_string} ] - NCAAF Games :football:")
     IO.puts("[#{count_nhl_string} ] - NHL Games :ice_hockey_stick_and_puck:")
+    IO.puts("[#{count_mlb_string} ] - MLB Games :baseball:")
     IO.puts("========================")
     IO.puts("[#{total_games_string}] - Total Games")
     IO.puts("This message is now partially automated :robot_dance: , and written in Elixir :smiling_imp: using our own APIs :mindblown:")
