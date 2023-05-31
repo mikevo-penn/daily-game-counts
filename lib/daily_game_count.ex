@@ -64,9 +64,15 @@ defmodule Mix.Tasks.DailyGameCount do
     _ = [data_mlb | game_data]
 
 
+    # MLS
+    {:ok, response_mls} = HTTPoison.get("https://api.thescore.com/mls/events?#{params}")
+    data_mls = extract_game_data(response_mls.body)
+    count_mls = Enum.count(data_mls)
+    _ = [data_mls | game_data]
+
     # Normalize game counts by hour.
  #   hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
-    hourly_data = [data_nba, data_nhl, data_mlb]
+    hourly_data = [data_nba, data_nhl, data_mlb, data_mls]
     graph_data = build_graph_data(hourly_data)
 
     # Generate graph image.
@@ -80,10 +86,11 @@ defmodule Mix.Tasks.DailyGameCount do
 #    count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
     count_mlb_string = transform_count_to_string(count_mlb)
+    count_mls_string = transform_count_to_string(count_mls)
 
     # Sum up the games across all the leagues we are checking.
  #   count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
-    count_total_games = count_nba + count_nhl + count_mlb
+    count_total_games = count_nba + count_nhl + count_mlb + count_mls
 
     # Stylize the game counts across all leagues we are chekcing into a string with padding.
     total_games_string = transform_count_to_string(count_total_games)
@@ -99,6 +106,7 @@ defmodule Mix.Tasks.DailyGameCount do
 #    IO.puts("[#{count_ncaaf_string} ] - NCAAF Games :football:")
     IO.puts("[#{count_nhl_string} ] - NHL Games :ice_hockey_stick_and_puck:")
     IO.puts("[#{count_mlb_string} ] - MLB Games :baseball:")
+    IO.puts("[#{count_mls_string} ] - MLS Games :soccer:")
     IO.puts("========================")
     IO.puts("[#{total_games_string}] - Total Games")
     IO.puts("This message is now partially automated :robot_dance: , and written in Elixir :smiling_imp: using our own APIs :mindblown:")
