@@ -129,7 +129,7 @@ defmodule Mix.Tasks.DailyGameCount do
     from_date = Calendar.strftime(current_date_time, string_format)
     to_date = Calendar.strftime(to_date_time, string_format)
 
-    #  "game_date.in=2023-11-05T05:00:00.000Z,2023-11-06T05:00:00.000Z&limit=-1&rpp=-1" #DEBUG LINE
+    #DEBUG AND SET ANY DATE "game_date.in=2023-11-20T05:00:00.000Z,2023-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
   end
 
@@ -243,8 +243,9 @@ defmodule Mix.Tasks.DailyGameCount do
 
   def get_weekday_date_string() do
     {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
-    day = Calendar.strftime(current_date_time, "%A")
-    full_day = Calendar.strftime(current_date_time, "%m/%d/%Y")
+    add_day = DateTime.add(current_date_time, 0, :day, Tz.TimeZoneDatabase)
+    day = Calendar.strftime(add_day, "%A")
+    full_day = Calendar.strftime(add_day, "%m/%d/%Y")
 
     {day, full_day}
   end
