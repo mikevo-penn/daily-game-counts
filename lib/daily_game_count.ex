@@ -27,6 +27,12 @@ defmodule Mix.Tasks.DailyGameCount do
     count_nba = Enum.count(data_nba)
     game_data = [data_nba | game_data]
 
+    # WNBA
+    {:ok, response_wnba} = HTTPoison.get("https://api.thescore.com/nba/events?#{params}")
+    data_wnba = extract_game_data(response_wnba.body)
+    count_wnba = Enum.count(data_wnba)
+    game_data = [data_wnba | game_data]
+
     # NCAAB Men's
     {:ok, response_ncaab} = HTTPoison.get("https://api.thescore.com/ncaab/events?#{params}")
     data_ncaab = extract_game_data(response_ncaab.body)
@@ -58,10 +64,10 @@ defmodule Mix.Tasks.DailyGameCount do
     _ = [data_nhl | game_data]
 
     # MLB
-    # {:ok, response_mlb} = HTTPoison.get("https://api.thescore.com/mlb/events?#{params}")
-    # data_mlb = extract_game_data(response_mlb.body)
-    # count_mlb = Enum.count(data_mlb)
-    # _ = [data_mlb | game_data]
+    {:ok, response_mlb} = HTTPoison.get("https://api.thescore.com/mlb/events?#{params}")
+    data_mlb = extract_game_data(response_mlb.body)
+    count_mlb = Enum.count(data_mlb)
+    _ = [data_mlb | game_data]
 
 
     # MLS
@@ -72,7 +78,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
     # Normalize game counts by hour.
  #   hourly_data = [data_nba, data_ncaab, data_wcbk, data_nfl, data_ncaaf, data_nhl]
-    hourly_data = [data_nba, data_ncaaf, data_nfl, data_mls, data_nhl, data_ncaab, data_wcbk]
+    hourly_data = [data_nba, data_wnba, data_ncaaf, data_nfl, data_mls, data_nhl, data_ncaab, data_wcbk, data_mlb]
     graph_data = build_graph_data(hourly_data)
 
     # Generate graph image.
@@ -80,17 +86,18 @@ defmodule Mix.Tasks.DailyGameCount do
 
     # Stylize the game counts into a string with padding.
     count_nba_string = transform_count_to_string(count_nba)
+    count_wnba_string = transform_count_to_string(count_wnba)
     count_ncaab_string = transform_count_to_string(count_ncaab)
     count_wcbk_string = transform_count_to_string(count_wcbk)
     count_nfl_string = transform_count_to_string(count_nfl)
     count_ncaaf_string = transform_count_to_string(count_ncaaf)
     count_nhl_string = transform_count_to_string(count_nhl)
-    # count_mlb_string = transform_count_to_string(count_mlb)
+    count_mlb_string = transform_count_to_string(count_mlb)
     count_mls_string = transform_count_to_string(count_mls)
 
     # Sum up the games across all the leagues we are checking.
  #   count_total_games = count_nba + count_ncaab + count_wcbk + count_nfl + count_ncaaf + count_nhl
-    count_total_games = count_nba + count_nfl + count_ncaaf + count_mls + count_nhl + count_ncaab + count_wcbk
+    count_total_games = count_nba + count_wnba + count_nfl + count_ncaaf + count_mls + count_nhl + count_ncaab + count_wcbk + count_mlb
 
     # Stylize the game counts across all leagues we are chekcing into a string with padding.
     total_games_string = transform_count_to_string(count_total_games)
@@ -100,12 +107,13 @@ defmodule Mix.Tasks.DailyGameCount do
 
     # Low tech print out the message body.
     IO.puts("[#{count_nba_string} ] - NBA Games :basketball:")
+    IO.puts("[#{count_wnba_string} ] - WNBA Games :basketball:")
     IO.puts("[#{count_ncaab_string} ] - NCAAB Men's Games :basketball:")
     IO.puts("[#{count_wcbk_string} ] - NCAAB Women's Games :basketball:")
     IO.puts("[#{count_nfl_string} ] - NFL Games :football:")
     IO.puts("[#{count_ncaaf_string} ] - NCAAF Games :football:")
     IO.puts("[#{count_nhl_string} ] - NHL Games :ice_hockey_stick_and_puck:")
-    # IO.puts("[#{count_mlb_string} ] - MLB Games :baseball:")
+    IO.puts("[#{count_mlb_string} ] - MLB Games :baseball:")
     IO.puts("[#{count_mls_string} ] - MLS Games :soccer:")
     IO.puts("========================")
     IO.puts("[#{total_games_string}] - Total Games")
@@ -129,8 +137,9 @@ defmodule Mix.Tasks.DailyGameCount do
     from_date = Calendar.strftime(current_date_time, string_format)
     to_date = Calendar.strftime(to_date_time, string_format)
 
-    #DEBUG AND SET ANY DATE "game_date.in=2023-11-20T05:00:00.000Z,2023-11-21T05:00:00.000Z&limit=-1&rpp=-1"
+    #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
+    #"game_date.in=2024-05-19T05:00:00.000Z,2024-05-20T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   def generate_message_heading(number_of_games) do
@@ -214,10 +223,11 @@ defmodule Mix.Tasks.DailyGameCount do
 
   end
 
-  def generate_graph_svg(grap_data) do
+  def generate_graph_svg(graph_data) do
     {day, full_day} = get_weekday_date_string()
 
-    ds = Contex.Dataset.new(grap_data, ["hour", "games\nstarting"])
+
+    ds = Contex.Dataset.new(graph_data, ["hour", "games\nstarting"])
     bar_chart = Contex.BarChart.new(ds)
 
     options = [
@@ -229,7 +239,7 @@ defmodule Mix.Tasks.DailyGameCount do
     # plot = Contex.Plot.new(800, 400, bar_chart, options)
     plot = Contex.Plot.new(ds, Contex.BarChart, 800, 400, options)
       |> Contex.Plot.plot_options(%{legend_setting: :legend_bottom})
-      |> Contex.Plot.axis_labels("", "")
+      |> Contex.Plot.axis_labels("Hour", "Games")
       |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 12 hour format.")
 
       {_, svg} = Contex.Plot.to_svg(plot)

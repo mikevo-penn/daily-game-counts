@@ -1,0 +1,5 @@
+{
+    "circleci.persistedProjectSelection": [
+        "gh/mikevo-penn/daily-game-counts"
+    ]
+}
