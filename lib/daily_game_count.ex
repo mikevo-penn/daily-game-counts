@@ -28,7 +28,7 @@ defmodule Mix.Tasks.DailyGameCount do
     game_data = [data_nba | game_data]
 
     # WNBA
-    {:ok, response_wnba} = HTTPoison.get("https://api.thescore.com/nba/events?#{params}")
+    {:ok, response_wnba} = HTTPoison.get("https://api.thescore.com/wnba/events?#{params}")
     data_wnba = extract_game_data(response_wnba.body)
     count_wnba = Enum.count(data_wnba)
     game_data = [data_wnba | game_data]
@@ -139,7 +139,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    #"game_date.in=2024-05-19T05:00:00.000Z,2024-05-20T05:00:00.000Z&limit=-1&rpp=-1"
+    #"game_date.in=2024-06-02T05:00:00.000Z,2024-06-03T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   def generate_message_heading(number_of_games) do
