@@ -139,9 +139,10 @@ defmodule Mix.Tasks.DailyGameCount do
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    #"game_date.in=2024-06-02T05:00:00.000Z,2024-06-03T05:00:00.000Z&limit=-1&rpp=-1"
+    #"game_date.in=2024-06-30T05:00:00.000Z,2024-07-01T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
+  @spec generate_message_heading(any()) :: :ok
   def generate_message_heading(number_of_games) do
     {day, full_day} = get_weekday_date_string()
     # {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
