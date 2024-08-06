@@ -138,8 +138,8 @@ defmodule Mix.Tasks.DailyGameCount do
     to_date = Calendar.strftime(to_date_time, string_format)
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
-    "game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    #"game_date.in=2024-06-30T05:00:00.000Z,2024-07-01T05:00:00.000Z&limit=-1&rpp=-1"
+    #"game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
+    "game_date.in=2024-08-11T05:00:00.000Z,2024-08-12T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   @spec generate_message_heading(any()) :: :ok
@@ -241,7 +241,7 @@ defmodule Mix.Tasks.DailyGameCount do
     plot = Contex.Plot.new(ds, Contex.BarChart, 800, 400, options)
       |> Contex.Plot.plot_options(%{legend_setting: :legend_bottom})
       |> Contex.Plot.axis_labels("Hour", "Games")
-      |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EST 12 hour format.")
+      |> Contex.Plot.titles("Game Starts by Hour - #{day} - #{full_day}", "Time is in EDT 12 hour format.")
 
       {_, svg} = Contex.Plot.to_svg(plot)
 
