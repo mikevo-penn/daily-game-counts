@@ -139,7 +139,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     #"game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    "game_date.in=2024-08-11T05:00:00.000Z,2024-08-12T05:00:00.000Z&limit=-1&rpp=-1"
+    "game_date.in=2024-08-18T05:00:00.000Z,2024-08-19T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   @spec generate_message_heading(any()) :: :ok
@@ -153,7 +153,7 @@ defmodule Mix.Tasks.DailyGameCount do
     msg = """
           :thread: #{day} - #{full_day}
 
-          #{volume_of_games} volume of #{number_of_games} games between 10:00 am and 11:00 pm EST timeframe today!
+          #{volume_of_games} volume of #{number_of_games} games between 10:00 am and 11:00 pm EDT timeframe today!
           """
 
     IO.puts msg
@@ -201,7 +201,7 @@ defmodule Mix.Tasks.DailyGameCount do
     |> Enum.map(fn (game) ->
       {_, dt} = Timex.parse(game, "{RFC1123}")
       # For time add calculation use * 4 durint DST (Day Light Savings). Otherwise use * 5
-      dt_est = DateTime.add(dt, 60 * 60 * 5 * -1, :second, Tz.TimeZoneDatabase)
+      dt_est = DateTime.add(dt, 60 * 60 * 4 * -1, :second, Tz.TimeZoneDatabase)
       {hour, ampm} = Timex.Time.to_12hour_clock(dt_est.hour)
       # ampm_capitalized = String.upcase("#{ampm}")
       "#{hour} #{String.upcase("#{ampm}")}"
@@ -267,7 +267,7 @@ defmodule Mix.Tasks.DailyGameCount do
     semi_sorted = Enum.sort_by(noramlized_hours, &{elem(&1, 0) =~ "PM", Integer.parse(hd(String.split(elem(&1, 0), " ")))})
 
     # get the correct sequence starting at 12 am to 11 am.
-    am_hours = Enum.slice(semi_sorted, 11, 1) ++ Enum.slice(semi_sorted, 0, 11)
+    am_hours = Enum.slice(semi_sorted, 11, 0) ++ Enum.slice(semi_sorted, 0, 11)
 
     # get the correct sequence starting at 12pm to 11 pm.
     pm_hours = [List.last(semi_sorted)] ++ Enum.slice(semi_sorted, 12,11)
