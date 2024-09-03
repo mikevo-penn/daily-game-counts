@@ -139,7 +139,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     #"game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    "game_date.in=2024-08-18T05:00:00.000Z,2024-08-19T05:00:00.000Z&limit=-1&rpp=-1"
+    "game_date.in=2024-09-08T05:00:00.000Z,2024-09-09T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   @spec generate_message_heading(any()) :: :ok
