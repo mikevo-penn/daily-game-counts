@@ -139,7 +139,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
     #DEBUG AND SET ANY DATE "game_date.in=2024-11-20T05:00:00.000Z,2024-11-21T05:00:00.000Z&limit=-1&rpp=-1"
     #"game_date.in=#{from_date},#{to_date}&limit=-1&rpp=-1"
-    "game_date.in=2024-11-06T05:00:00.000Z,2024-11-07T05:00:00.000Z&limit=-1&rpp=-1"
+    "game_date.in=2024-11-17T05:00:00.000Z,2024-11-18T05:00:00.000Z&limit=-1&rpp=-1"
   end
 
   @spec generate_message_heading(any()) :: :ok
@@ -254,6 +254,7 @@ defmodule Mix.Tasks.DailyGameCount do
 
   def get_weekday_date_string() do
     {:ok, current_date_time} = DateTime.now("America/New_York", Tz.TimeZoneDatabase)
+    # Add Days below to get proper map data from a day in the future.
     add_day = DateTime.add(current_date_time, 0, :day, Tz.TimeZoneDatabase)
     day = Calendar.strftime(add_day, "%A")
     full_day = Calendar.strftime(add_day, "%m/%d/%Y")
